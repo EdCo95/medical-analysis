@@ -1,3 +1,11 @@
+from enum import Enum
+
+
+class PromptConstant(Enum):
+    YES = "YES"
+    NO = "NO"
+
+
 ASK_FOR_CPT_CODES = (
     "A CPT code is a sequence of numbers indicating medical procedures. "
     "What are the CPT codes for the procedures which the doctor has requested? "
@@ -19,6 +27,19 @@ DETERMINE_MATCH = (
     "Does the meaning of the codes match the doctor's recommended treatment, "
     "or has there been a mistake? Show your reasoning. If there has been a mistake,"
     ' start your response with the indicator "[ERROR]"'
+)
+
+SUMMARY_OF_TREATMENT_SO_FAR = (
+    "For the patient's CURRENT CONDITION, answer the questions below. "
+    "Provide detail and reasoning, all based on evidence from the context."
+    "\n1. Have any treatments already been attempted? If so, what was their outcome?"
+    "\n2. Is there anything which has improved the patient's current condition?"
+)
+
+
+YES_NO_DID_ANYTHING_HELP = (
+    f"Read the summary, then output either '{PromptConstant.YES.value}' or '{PromptConstant.NO.value}' indicating "
+    "WHETHER ANYTHING HAS HELPED THE PATIENT'S CURRENT CONDITION."
 )
 
 

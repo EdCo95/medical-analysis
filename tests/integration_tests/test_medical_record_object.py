@@ -37,3 +37,28 @@ class MedicalRecordTestCase(unittest.TestCase):
         record = self._get_record(data_handler.get_incorrect_medical_record_path())
         result = record.extract_and_validate_cpt_codes()
         self.assertTrue("[ERROR]" in result)
+
+    def test_that_it_can_check_for_previous_conservative_treatment(self):
+        record = self._get_record(data_handler.get_medical_record_one_path())
+        result, prev_treatment_helped = (
+            record.check_for_previous_conservative_treatment()
+        )
+        self.assertTrue(prev_treatment_helped)
+
+        record = self._get_record(data_handler.get_medical_record_two_path())
+        result, prev_treatment_helped = (
+            record.check_for_previous_conservative_treatment()
+        )
+        self.assertFalse(prev_treatment_helped)
+
+        record = self._get_record(data_handler.get_medical_record_three_path())
+        result, prev_treatment_helped = (
+            record.check_for_previous_conservative_treatment()
+        )
+        self.assertFalse(prev_treatment_helped)
+
+        record = self._get_record(data_handler.get_incorrect_medical_record_path())
+        result, prev_treatment_helped = (
+            record.check_for_previous_conservative_treatment()
+        )
+        self.assertFalse(prev_treatment_helped)

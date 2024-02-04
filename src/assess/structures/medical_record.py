@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Tuple
 
 from langchain_core.documents import Document
 from loguru import logger
 
 from assess.models.advisor import GPT3_5Advisor
 from assess.structures import prompts
+from assess.structures.prompts import PromptConstant
 from assess.utils import serialize
 
 
@@ -47,6 +48,25 @@ class MedicalRecord:
             f"Confirming that those codes match what the doctor has said in the text: {does_match}"
         )
         return does_match
+
+    def check_for_previous_conservative_treatment(self) -> Tuple[str, bool]:
+        summary = self.advisor.ask(
+            prompts.SUMMARY_OF_TREATMENT_SO_FAR, context=self.pages
+        )
+        logger.info(f"Summarised attempts to help the patient so far: {summary}")
+        confirmation = self.advisor.ask(
+            prompts.YES_NO_DID_ANYTHING_HELP, context=[Document(page_content=summary)]
+        )
+        logger.info(f"Interpretation: did anything help the patient? {confirmation}")
+
+        if confirmation.strip() == PromptConstant.YES.value:
+            return summary, True
+        elif confirmation.strip() == PromptConstant.NO.value:
+            return summary, False
+        else:
+            raise ValueError(
+                f'Confirmation did not respond with yes or no (responded with "{confirmation}")'
+            )
 
     @classmethod
     def from_pdf(cls, pdf_path: str) -> "MedicalRecord":
