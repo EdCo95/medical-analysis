@@ -51,3 +51,8 @@ class AdvisorTestCase(unittest.TestCase):
         finally:
             if existing_key:
                 os.environ["OPENAI_API_KEY"] = existing_key
+
+    def test_that_the_base_advisor_class_provides_a_web_search_function(self):
+        advisor = Advisor()
+        result = advisor.web_search("CPT Code 43578")
+        print(result)

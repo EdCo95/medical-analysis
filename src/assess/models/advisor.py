@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List, Optional
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -25,15 +26,23 @@ class AdvisorType(Enum):
 class Advisor:
     """Interface class for advisors."""
 
+    def __init__(self):
+        self.search = DuckDuckGoSearchRun()
+
     def ask(self, prompt: str, context: Optional[List[Document]] = None) -> str:
         """Asks an arbitrary prompt and returns a string."""
         raise NotImplementedError
+
+    def web_search(self, query: str) -> str:
+        """Performs a web search and returns the results as a string."""
+        return self.search.run(query)
 
 
 class GPT4Advisor(Advisor):
     """An Advisor backed by GPT-4"""
 
     def __init__(self):
+        super().__init__()
         self.model = ChatOpenAI(model=AdvisorType.GPT_4.value)
         self.engine = OpenAiEngine(self.model)
 
@@ -45,6 +54,7 @@ class GPT3_5Advisor(Advisor):
     """An Advisor backed by GPT-3.5"""
 
     def __init__(self):
+        super().__init__()
         self.model = ChatOpenAI(model=AdvisorType.GPT_3_5.value)
         self.engine = OpenAiEngine(self.model)
 
