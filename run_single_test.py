@@ -1,6 +1,6 @@
-from tests.integration_tests.test_medical_record_object import MedicalRecordTestCase
+from tests.integration_tests.test_advisors import AdvisorTestCase
 
-tc = MedicalRecordTestCase()
+tc = AdvisorTestCase()
 tc.setUp()
-tc.test_that_it_can_extract_the_requested_procedure_codes_record_one()
+tc.test_that_no_api_key_raises_an_appropriate_error()
 tc.tearDown()

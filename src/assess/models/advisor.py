@@ -6,8 +6,15 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from pydantic.v1.error_wrappers import ValidationError
 
 from assess.structures import prompts
+
+
+class MissingApiKeyExcepetion(Exception):
+    """To be raised if the API key environment variable hasn't been set"""
+
+    pass
 
 
 class AdvisorType(Enum):
@@ -66,3 +73,28 @@ class OpenAiEngine:
             return self._basic_chain.invoke({"question": s})
         else:
             return self._context_chain.invoke({"question": s, "context": context})
+
+
+class AdvisorFactory:
+    """Given a model identifier, instantiates the correct Advisor object."""
+
+    def __init__(self, model_id: AdvisorType):
+        self.advisor_type = model_id
+
+    def _select_advisor(self) -> Advisor:
+        if self.advisor_type == AdvisorType.GPT_4:
+            return GPT4Advisor()
+        elif self.advisor_type == AdvisorType.GPT_3_5:
+            return GPT3_5Advisor()
+        else:
+            raise KeyError(
+                f"Need to specify a valid advisor type (current: {self.advisor_type})"
+            )
+
+    def get_advisor(self) -> Advisor:
+        try:
+            return self._select_advisor()
+        except ValidationError:
+            raise MissingApiKeyExcepetion(
+                "Make sure you provide an API key for the model you want to instantiate."
+            )
