@@ -55,3 +55,9 @@ class SerializeTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(write_path))
         result = serialize.load_json_file(write_path)
         self.assertDictEqual(to_write, result)
+
+    def test_that_it_can_load_a_pdf_file(self):
+        expected = ["Successfully\nloaded\na\nPDF!"]
+        result = serialize.load_pdf_file(data_handler.get_test_pdf_file_path())
+        result = [x.page_content for x in result]
+        self.assertListEqual(expected, result)

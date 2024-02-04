@@ -7,6 +7,7 @@ class TestConstant(Enum):
     TEXT_FILE = "a_test_file.txt"
     TOML_FILE = "a_test_toml.toml"
     JSON_FILE = "a_test_json.json"
+    PDF_FILE = "a_test_pdf.pdf"
 
 
 def get_data_dir_path() -> str:
@@ -25,3 +26,7 @@ def get_test_toml_file_path() -> str:
 
 def get_test_json_file_path() -> str:
     return os.path.join(get_data_dir_path(), TestConstant.JSON_FILE.value)
+
+
+def get_test_pdf_file_path() -> str:
+    return os.path.join(get_data_dir_path(), TestConstant.PDF_FILE.value)

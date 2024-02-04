@@ -2,6 +2,8 @@ import json
 from typing import Dict, List, Union
 
 import tomlkit
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_core.documents import Document
 
 
 def load_text_file(path: str) -> str:
@@ -34,3 +36,8 @@ def load_json_file(path: str) -> Union[Dict, List]:
 def write_json_file(data: Union[Dict, List], path: str):
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
+
+
+def load_pdf_file(path: str) -> List[Document]:
+    loader = PyPDFLoader(path)
+    return loader.load_and_split()
