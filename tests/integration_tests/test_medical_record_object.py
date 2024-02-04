@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -76,10 +77,19 @@ class MedicalRecordTestCase(unittest.TestCase):
 
             <context>
             {context}
-            </contex>
+            </context>
             """
         )
         llm = ChatOpenAI()
         chain = check_prompt | llm | StrOutputParser()
         result = chain.invoke({"context": result})
         self.assertEqual(result.strip(), "YES")
+
+    def test_that_it_can_extract_a_profile(self):
+        record = self._get_record(data_handler.get_medical_record_one_path())
+        result = record.extract_patient_profile()
+        birth = datetime(year=1982, month=6, day=16)
+        now = datetime.now()
+        age = (now - birth).days // 365
+        expected = {"name": "James Freeman", "dob": "06/16/1982", "age": str(age)}
+        self.assertDictEqual(expected, result)

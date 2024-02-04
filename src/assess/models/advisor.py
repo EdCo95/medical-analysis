@@ -1,11 +1,12 @@
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_core.documents import Document
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from langchain_core.pydantic_v1 import BaseModel
 from langchain_openai import ChatOpenAI
 from pydantic.v1.error_wrappers import ValidationError
 
@@ -38,6 +39,21 @@ class Advisor:
         """Asks an arbitrary prompt and returns a string."""
         raise NotImplementedError
 
+    def assess_against_criteria(
+        self, to_be_assessed: List[Document], criteria: str
+    ) -> str:
+        """Assesses the given item against the given criteria."""
+        raise NotImplementedError
+
+    def extract_json(
+        self,
+        prompt: str,
+        json_structure: BaseModel,
+        context: Optional[List[Document]] = None,
+    ) -> Dict:
+        """Extracts JSON data"""
+        raise NotImplementedError
+
     def web_search(self, query: str) -> str:
         """Performs a web search and returns the results as a string."""
         return self.search.run(query)
@@ -59,6 +75,19 @@ class GPT4Advisor(Advisor):
     ) -> str:
         return self.engine.ask(s, context)
 
+    def extract_json(
+        self,
+        prompt: str,
+        json_structure: BaseModel,
+        context: Optional[List[Document]] = None,
+    ) -> Dict:
+        return self.engine.extract_json(prompt, json_structure, context)
+
+    def assess_against_criteria(
+        self, to_be_assessed: List[Document], criteria: str
+    ) -> str:
+        return self.engine.assess_against_criteria(to_be_assessed, criteria)
+
 
 class GPT3_5Advisor(Advisor):
     """An Advisor backed by GPT-3.5"""
@@ -75,6 +104,19 @@ class GPT3_5Advisor(Advisor):
         search_results: Optional[str] = None,
     ) -> str:
         return self.engine.ask(s, context)
+
+    def extract_json(
+        self,
+        prompt: str,
+        json_structure: BaseModel,
+        context: Optional[List[Document]] = None,
+    ) -> Dict:
+        return self.engine.extract_json(prompt, json_structure, context)
+
+    def assess_against_criteria(
+        self, to_be_assessed: List[Document], criteria: str
+    ) -> str:
+        return self.engine.assess_against_criteria(to_be_assessed, criteria)
 
 
 class OpenAiEngine:
@@ -100,6 +142,13 @@ class OpenAiEngine:
             self.model, prompt=self._context_and_search_prompt
         )
 
+        self._assessment_prompt = ChatPromptTemplate.from_template(
+            template=prompts.ASSESS_AGAINST_CRITERIA
+        )
+        self._assessment_chain = create_stuff_documents_chain(
+            self.model, self._assessment_prompt
+        )
+
     def ask(
         self,
         s: str,
@@ -118,6 +167,30 @@ class OpenAiEngine:
             return self._context_and_search_prompt(
                 {"question": s, "context": context, "search_results": search_results}
             )
+
+    def extract_json(
+        self,
+        prompt: str,
+        json_structure: BaseModel,
+        context: Optional[List[Document]] = None,
+    ) -> Dict:
+        parser = JsonOutputParser(pydantic_object=json_structure)
+        prompt = PromptTemplate(
+            template=prompts.JSON_EXTRACTION_PROMPT,
+            input_variables=["prompt", "context"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
+        )
+        chain = create_stuff_documents_chain(self.model, prompt) | parser
+        result = chain.invoke({"prompt": prompt, "context": context})
+        return result
+
+    def assess_against_criteria(
+        self, to_be_assessed: List[Document], criteria: str
+    ) -> str:
+        result = self._assessment_chain.invoke(
+            {"context": to_be_assessed, "criteria": criteria}
+        )
+        return result
 
 
 class AdvisorFactory:

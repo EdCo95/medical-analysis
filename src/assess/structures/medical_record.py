@@ -1,12 +1,19 @@
-from typing import List, Tuple
+from datetime import datetime
+from typing import Dict, List, Tuple
 
 from langchain_core.documents import Document
+from langchain_core.pydantic_v1 import BaseModel, Field
 from loguru import logger
 
 from assess.models.advisor import GPT3_5Advisor
 from assess.structures import prompts
 from assess.structures.prompts import PromptConstant
 from assess.utils import serialize
+
+
+class PatientProfile(BaseModel):
+    name: str = Field(description="The name of the patient")
+    dob: str = Field(description="The patient's date of birth")
 
 
 class MedicalRecord:
@@ -74,6 +81,18 @@ class MedicalRecord:
             context=self.pages,
         )
         return evidence
+
+    def extract_patient_profile(self) -> Dict:
+        extracted = self.advisor.extract_json(
+            "Extract the patient's name and date of birth in JSON format.",
+            json_structure=PatientProfile,
+            context=self.pages,
+        )
+        dob_dt = extracted["dob"]
+        dob_dt = datetime.strptime(dob_dt, "%m/%d/%Y")
+        age = (datetime.now() - dob_dt).days // 365
+        extracted["age"] = str(age)
+        return extracted
 
     @classmethod
     def from_pdf(cls, pdf_path: str) -> "MedicalRecord":

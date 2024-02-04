@@ -68,3 +68,32 @@ CONTEXT_AND_SEARCH_RESULTS = """Read the context and the search results, then an
 </search-results>
 
 Question: {input}"""
+
+
+JSON_EXTRACTION_PROMPT = """Read the context then extract the JSON data as described in the prompt.
+
+<prompt>
+{prompt}
+</prompt>
+
+<context>
+{context}
+</context>
+
+<json-format-instructions>
+{format_instructions}
+</json-format-instructions>
+"""
+
+
+ASSESS_AGAINST_CRITERIA = (
+    "Read the document then make an assessment against the criteria to decide whether the context "
+    "meets the criteria. YOU MUST SHOW YOUR REASONING IN DETAIL. When justifying your decision, "
+    "QUOTE EVIDENCE VERBATIM from the criteria and the document.\n\n"
+    "<document>\n"
+    "{context}\n"
+    "</document>\n\n"
+    "<criteria>\n"
+    "{criteria}\n"
+    "</criteria>"
+)

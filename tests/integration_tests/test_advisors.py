@@ -1,13 +1,22 @@
 import os
 import unittest
 
+from langchain_core.documents import Document
+from langchain_core.pydantic_v1 import BaseModel, Field
+
 from assess.models.advisor import (
     Advisor,
     AdvisorFactory,
     AdvisorType,
     MissingApiKeyExcepetion,
 )
+from assess.utils import serialize
 from tests.tools import data_handler
+
+
+class ExampleJson(BaseModel):
+    name: str = Field(description="The patient's name")
+    dob: str = Field(description="The patient's date of birth")
 
 
 class AdvisorTestCase(unittest.TestCase):
@@ -79,3 +88,32 @@ class AdvisorTestCase(unittest.TestCase):
         advisor = Advisor()
         result = advisor.web_search("CPT Code 43578")
         print(result)
+
+    def test_that_json_structures_can_be_extracted(self):
+        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        context = data_handler.load_medical_record_1()
+        result = advisor.extract_json(
+            "Extract the patient's name and date of birth in JSON format.",
+            context=context,
+            json_structure=ExampleJson,
+        )
+        expected = {"name": "James Freeman", "dob": "06/16/1982"}
+        self.assertDictEqual(expected, result)
+
+    def test_that_an_assessment_criteria_can_be_given_alongside_a_document(self):
+        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        context = data_handler.load_medical_record_1()
+        extra_context = Document(page_content="Age: 42")
+        context.append(extra_context)
+        criteria_dict = serialize.load_assesment_criteria(criteria_for="colonoscopy")
+        criteria = (
+            "Does the patient satisfy this criteria for a colonoscopy?"
+            + "\n\n"
+            + criteria_dict["risk-profile"]["criteria"]
+        )
+        result = advisor.assess_against_criteria(
+            to_be_assessed=context, criteria=criteria
+        )
+        print(result)
+        input("wait")
+        # TODO: make the input better to highlight the age so that it does not need to calculate it itself - add a new section dedicated to metadata
