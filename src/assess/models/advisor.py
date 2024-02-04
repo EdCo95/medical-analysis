@@ -29,7 +29,12 @@ class Advisor:
     def __init__(self):
         self.search = DuckDuckGoSearchRun()
 
-    def ask(self, prompt: str, context: Optional[List[Document]] = None) -> str:
+    def ask(
+        self,
+        prompt: str,
+        context: Optional[List[Document]] = None,
+        search_results: Optional[str] = None,
+    ) -> str:
         """Asks an arbitrary prompt and returns a string."""
         raise NotImplementedError
 
@@ -46,7 +51,12 @@ class GPT4Advisor(Advisor):
         self.model = ChatOpenAI(model=AdvisorType.GPT_4.value)
         self.engine = OpenAiEngine(self.model)
 
-    def ask(self, s: str, context: Optional[List[Document]] = None) -> str:
+    def ask(
+        self,
+        s: str,
+        context: Optional[List[Document]] = None,
+        search_results: Optional[str] = None,
+    ) -> str:
         return self.engine.ask(s, context)
 
 
@@ -58,7 +68,12 @@ class GPT3_5Advisor(Advisor):
         self.model = ChatOpenAI(model=AdvisorType.GPT_3_5.value)
         self.engine = OpenAiEngine(self.model)
 
-    def ask(self, s: str, context: Optional[List[Document]] = None) -> str:
+    def ask(
+        self,
+        s: str,
+        context: Optional[List[Document]] = None,
+        search_results: Optional[str] = None,
+    ) -> str:
         return self.engine.ask(s, context)
 
 
@@ -78,11 +93,31 @@ class OpenAiEngine:
             self.model, prompt=self._context_prompt
         )
 
-    def ask(self, s: str, context: Optional[List[Document]] = None) -> str:
+        self._context_and_search_prompt = ChatPromptTemplate.from_template(
+            template=prompts.CONTEXT_AND_SEARCH_RESULTS
+        )
+        self._context_and_search_chain = create_stuff_documents_chain(
+            self.model, prompt=self._context_and_search_prompt
+        )
+
+    def ask(
+        self,
+        s: str,
+        context: Optional[List[Document]] = None,
+        search_results: Optional[str] = None,
+    ) -> str:
         if not context:
             return self._basic_chain.invoke({"question": s})
-        else:
+        elif context and not search_results:
             return self._context_chain.invoke({"question": s, "context": context})
+        elif not context and search_results:
+            return self._context_chain.invoke(
+                {"question": s, "context": search_results}
+            )
+        else:
+            return self._context_and_search_prompt(
+                {"question": s, "context": context, "search_results": search_results}
+            )
 
 
 class AdvisorFactory:

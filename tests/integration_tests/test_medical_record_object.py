@@ -27,6 +27,13 @@ class MedicalRecordTestCase(unittest.TestCase):
         result = record.extract_requested_cpt_codes()
         self.assertTrue(all(x in result for x in expected))
 
-    # def test_that_it_can_verify_the_extracted_procedure_codes(self):
-    #     record = self._get_record(data_handler.get_medical_record_one_path())
-    #     raise NotImplementedError
+    def test_that_it_can_verify_the_extracted_procedure_codes_match_what_the_doctor_ordered(
+        self,
+    ):
+        record = self._get_record(data_handler.get_medical_record_one_path())
+        result = record.extract_and_validate_cpt_codes()
+        self.assertTrue("[ERROR]" not in result)
+
+        record = self._get_record(data_handler.get_incorrect_medical_record_path())
+        result = record.extract_and_validate_cpt_codes()
+        self.assertTrue("[ERROR]" in result)

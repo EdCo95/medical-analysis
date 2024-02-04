@@ -17,6 +17,7 @@ class TestConstant(Enum):
     MEDICAL_RECORD_ONE = "medical-record-1.pdf"
     MEDICAL_RECORD_TWO = "medical-record-2.pdf"
     MEDICAL_RECORD_THREE = "medical-record-3.pdf"
+    NON_MATCHING_RECORD = "non_matching_medical_record.pdf"
 
 
 def get_data_dir_path() -> str:
@@ -51,6 +52,10 @@ def get_medical_record_two_path() -> str:
 
 def get_medical_record_three_path() -> str:
     return os.path.join(get_data_dir_path(), TestConstant.MEDICAL_RECORD_THREE.value)
+
+
+def get_incorrect_medical_record_path() -> str:
+    return os.path.join(get_data_dir_path(), TestConstant.NON_MATCHING_RECORD.value)
 
 
 def load_medical_record_1(as_raw_text: bool = False) -> Union[List[Document], str]:

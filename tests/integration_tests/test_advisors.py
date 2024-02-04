@@ -35,6 +35,29 @@ class AdvisorTestCase(unittest.TestCase):
         )
         self.assertTrue(expected in result.lower())
 
+    def test_that_advisors_can_answer_questions_based_on_search_results(self):
+        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        expected = "yes"
+        result = advisor.ask(
+            "Is Cheddar a type of cheese?",
+            search_results="A very popular type of cheese, Cheddar is also a town in the west country",
+        )
+        self.assertTrue(expected in result.lower())
+
+    def test_that_advisors_can_answer_questions_based_on_context_and_search_results(
+        self,
+    ):
+        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        context = data_handler.load_medical_record_1()
+        expected = "yes"
+        result = advisor.ask(
+            "Do the search results match the treatment which the doctor has recommended? If so, say 'yes'. "
+            "Be concise but show your reasoning.",
+            context=context,
+            search_results="45378 is a colonoscopy",
+        )
+        self.assertTrue(expected in result.lower())
+
     def test_that_no_api_key_raises_an_appropriate_error(self):
         existing_key = os.environ.get("OPENAI_API_KEY")
         if existing_key:
