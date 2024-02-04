@@ -1,0 +1,33 @@
+description = """
+This document provides the assessment criteria for whether a patient is eligible for a colonoscopy procedure.
+
+Below are three sections describing different criteria. The title of each section is delineated by square brackets.
+
+A patient is eligible for a colonoscopy if they satisfy ANY SINGLE ONE OF THOSE SECTIONS.
+"""
+
+[risk-profile]
+criteria = """
+The patient meets this criteria if they have an average or higher risk of colorectal cancer, as indicated by ALL of the following:
+1. Aged 45 years or older
+2. No colonoscopy in the last 10 years
+"""
+
+[close-family]
+criteria = """
+The patient meets this criteria if colorectal cancer has been diagnosed in one or more first-degree relatives of any age, and ALL of the following are true:
+1. The patient is aged 40 years or older
+2. They are symptomatic, for example with abdominal pain, iron deficiency anemia, or rectal bleeding
+"""
+
+[family-polyposis]
+criteria = """
+The patient meets this criteria if they have any family member with colonic adenomatous polyposis of unknown etiology
+"""
+
+[juvenile-polyposis-syndrome]
+criteria = """
+The patient meets this criteria if they are diagnosed with juvenile polyposis syndrome as indicated by ONE OR MORE of the following:
+1. Age 12 years or older and symptomatic (eg, abdominal pain, iron deficiency anemia, rectal bleeding, telangiectasia)
+2. Age younger than 12 years and symptomatic (eg, abdominal pain, iron deficiency anemia, rectal bleeding, telangiectasia)
+"""

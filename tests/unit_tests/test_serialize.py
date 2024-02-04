@@ -68,3 +68,8 @@ class SerializeTestCase(unittest.TestCase):
             data_handler.get_test_pdf_file_path(), as_raw_text=True
         )
         self.assertEqual(expected, result)
+
+    def test_that_it_can_load_assessment_criteria(self):
+        expected = data_handler.load_example_treatment_criteria()
+        result = serialize.load_assesment_criteria(criteria_for="colonoscopy")
+        self.assertDictEqual(expected, result)

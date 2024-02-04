@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import List, Union
+from typing import Dict, List, Union
 
 from langchain_core.documents import Document
 
@@ -14,6 +14,7 @@ class TestConstant(Enum):
     JSON_FILE = "a_test_json.json"
     PDF_FILE = "a_test_pdf.pdf"
 
+    EXAMPLE_CRITERIA = "example_criteria.toml"
     MEDICAL_RECORD_ONE = "medical-record-1.pdf"
     MEDICAL_RECORD_TWO = "medical-record-2.pdf"
     MEDICAL_RECORD_THREE = "medical-record-3.pdf"
@@ -76,4 +77,10 @@ def load_medical_record_3(as_raw_text: bool = False) -> Union[List[Document], st
     return serialize.load_pdf_file(
         os.path.join(get_data_dir_path(), TestConstant.MEDICAL_RECORD_THREE.value),
         as_raw_text=as_raw_text,
+    )
+
+
+def load_example_treatment_criteria() -> Dict:
+    return serialize.load_toml_file(
+        os.path.join(get_data_dir_path(), TestConstant.EXAMPLE_CRITERIA.value)
     )

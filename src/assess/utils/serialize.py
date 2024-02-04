@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Dict, List, Union
 
 import tomlkit
@@ -45,3 +46,12 @@ def load_pdf_file(path: str, as_raw_text: bool = False) -> List[Document]:
         return "\n\n".join(x.page_content for x in result)
     else:
         return result
+
+
+def load_assesment_criteria(criteria_for: str) -> Dict:
+    this_file_dirname = os.path.dirname(os.path.abspath(__file__))
+    package_root = os.path.dirname(this_file_dirname)
+    crieria_path = os.path.join(
+        package_root, "models", "criteria", f"{criteria_for}.toml"
+    )
+    return load_toml_file(crieria_path)
