@@ -38,6 +38,10 @@ def write_json_file(data: Union[Dict, List], path: str):
         json.dump(data, f, indent=4)
 
 
-def load_pdf_file(path: str) -> List[Document]:
+def load_pdf_file(path: str, as_raw_text: bool = False) -> List[Document]:
     loader = PyPDFLoader(path)
-    return loader.load_and_split()
+    result = loader.load_and_split()
+    if as_raw_text:
+        return "\n\n".join(x.page_content for x in result)
+    else:
+        return result

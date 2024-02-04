@@ -1,6 +1,6 @@
-from tests.unit_tests.test_serialize import SerializeTestCase
+from tests.integration_tests.test_medical_record_object import MedicalRecordTestCase
 
-tc = SerializeTestCase()
+tc = MedicalRecordTestCase()
 tc.setUp()
-tc.test_that_it_can_load_a_pdf_file()
+tc.test_that_it_can_extract_the_requested_procedure_codes_record_one()
 tc.tearDown()

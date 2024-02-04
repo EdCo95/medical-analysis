@@ -162,3 +162,5 @@ cython_debug/
 run.py
 
 .DS_Store
+
+archive

@@ -61,3 +61,10 @@ class SerializeTestCase(unittest.TestCase):
         result = serialize.load_pdf_file(data_handler.get_test_pdf_file_path())
         result = [x.page_content for x in result]
         self.assertListEqual(expected, result)
+
+    def test_that_it_can_load_a_pdf_file_as_raw_text(self):
+        expected = "Successfully\nloaded\na\nPDF!"
+        result = serialize.load_pdf_file(
+            data_handler.get_test_pdf_file_path(), as_raw_text=True
+        )
+        self.assertEqual(expected, result)
