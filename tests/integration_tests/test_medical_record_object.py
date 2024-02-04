@@ -1,5 +1,9 @@
 import unittest
 
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+
 from assess.structures.medical_record import MedicalRecord
 from tests.tools import data_handler
 
@@ -62,3 +66,20 @@ class MedicalRecordTestCase(unittest.TestCase):
             record.check_for_previous_conservative_treatment()
         )
         self.assertFalse(prev_treatment_helped)
+
+    def test_that_it_can_present_evidence_treatment_helped(self):
+        record = self._get_record(data_handler.get_medical_record_one_path())
+        result = record.present_evidence_treatment_helped()
+
+        check_prompt = ChatPromptTemplate.from_template(
+            """Examine the context below. The context should present evidence that treatment helped. Does it? If so, output just the word YES
+
+            <context>
+            {context}
+            </contex>
+            """
+        )
+        llm = ChatOpenAI()
+        chain = check_prompt | llm | StrOutputParser()
+        result = chain.invoke({"context": result})
+        self.assertEqual(result.strip(), "YES")

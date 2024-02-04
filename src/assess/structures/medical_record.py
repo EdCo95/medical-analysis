@@ -68,6 +68,13 @@ class MedicalRecord:
                 f'Confirmation did not respond with yes or no (responded with "{confirmation}")'
             )
 
+    def present_evidence_treatment_helped(self):
+        evidence = self.advisor.ask(
+            "Please extract evidence which shows that there has been an improvement in the patient's condition, especially as the result of any treatment. QUOTE THE RELEVANT EVIDENCE VERBATIM. Present each piece of evidence in a numbered list. Each item should contain THE VERBATIM QUOTE FROM THE CONTEXT and an explanation of why this constitutes evidence that the patient's condition improved.",
+            context=self.pages,
+        )
+        return evidence
+
     @classmethod
     def from_pdf(cls, pdf_path: str) -> "MedicalRecord":
         data = serialize.load_pdf_file(pdf_path)
