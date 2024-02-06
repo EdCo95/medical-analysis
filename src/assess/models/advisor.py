@@ -39,12 +39,6 @@ class Advisor:
         """Asks an arbitrary prompt and returns a string."""
         raise NotImplementedError
 
-    def assess_against_criteria(
-        self, to_be_assessed: List[Document], criteria: str
-    ) -> str:
-        """Assesses the given item against the given criteria."""
-        raise NotImplementedError
-
     def extract_json(
         self,
         prompt: str,
@@ -83,11 +77,6 @@ class GPT4Advisor(Advisor):
     ) -> Dict:
         return self.engine.extract_json(prompt, json_structure, context)
 
-    def assess_against_criteria(
-        self, to_be_assessed: List[Document], criteria: str
-    ) -> str:
-        return self.engine.assess_against_criteria(to_be_assessed, criteria)
-
 
 class GPT3_5Advisor(Advisor):
     """An Advisor backed by GPT-3.5"""
@@ -112,11 +101,6 @@ class GPT3_5Advisor(Advisor):
         context: Optional[List[Document]] = None,
     ) -> Dict:
         return self.engine.extract_json(prompt, json_structure, context)
-
-    def assess_against_criteria(
-        self, to_be_assessed: List[Document], criteria: str
-    ) -> str:
-        return self.engine.assess_against_criteria(to_be_assessed, criteria)
 
 
 class OpenAiEngine:
@@ -182,14 +166,6 @@ class OpenAiEngine:
         )
         chain = create_stuff_documents_chain(self.model, prompt) | parser
         result = chain.invoke({"prompt": prompt, "context": context})
-        return result
-
-    def assess_against_criteria(
-        self, to_be_assessed: List[Document], criteria: str
-    ) -> str:
-        result = self._assessment_chain.invoke(
-            {"context": to_be_assessed, "criteria": criteria}
-        )
         return result
 
 

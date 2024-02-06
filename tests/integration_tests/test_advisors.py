@@ -9,7 +9,6 @@ from assess.models.advisor import (
     AdvisorType,
     MissingApiKeyExcepetion,
 )
-from assess.utils import serialize
 from tests.tools import data_handler
 
 
@@ -98,20 +97,3 @@ class AdvisorTestCase(unittest.TestCase):
         )
         expected = {"name": "James Freeman", "dob": "06/16/1982"}
         self.assertDictEqual(expected, result)
-
-    def test_that_an_assessment_criteria_can_be_given_alongside_a_document(self):
-        advisor = self._get_advisor(AdvisorType.GPT_3_5)
-        context = data_handler.load_medical_record_1()
-        criteria_dict = serialize.load_assesment_criteria(criteria_for="colonoscopy")
-        criteria = (
-            "Does the patient satisfy this criteria for a colonoscopy?"
-            + "\n\n"
-            + criteria_dict["risk-profile"]["criteria"]
-        )
-        result, does_satisfy = advisor.assess_against_criteria(
-            to_be_assessed=context, criteria=criteria, age=42
-        )
-        print(result)
-        input("wait")
-        self.assertFalse(does_satisfy)
-        # TODO: make the input better to highlight the age so that it does not need to calculate it itself - add a new section dedicated to metadata
