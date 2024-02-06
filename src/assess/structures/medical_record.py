@@ -27,14 +27,19 @@ class MedicalRecord:
         result = self.advisor.ask(prompts.ASK_FOR_CPT_CODES, context=self.pages)
         return result
 
-    def extract_and_validate_cpt_codes(self) -> str:
+    def extract_and_validate_cpt_codes(self) -> Dict[str, str]:
         """
         Reads the CPT codes then checks that the procedure they correspond to aligns with the note description.
         """
+        result = {}
         summary = self.advisor.ask(prompts.SUMMARISE_DOCTORS_ORDERS, context=self.pages)
+        result["Summary of Recommended Treatment"] = summary
         logger.info(f"Summary of Doctor's Recommended Treatment: {summary}")
+
         codes = self.extract_requested_cpt_codes()
+        result["Extracted CPT Codes"] = codes
         logger.info(f"Extracted CPT codes: {codes}")
+
         code_meaning = self.advisor.web_search(
             prompts.CPT_WEB_SEARCH.format(codes=codes)
         )
@@ -42,19 +47,22 @@ class MedicalRecord:
             prompts.SUMMARISE_CODE_MEANINGS.format(codes=codes),
             search_results=code_meaning,
         )
+        result["Search Results For Code Meanings"] = code_meaning
         logger.info(
             f"Found and summarised the following online regarding these codes: {code_meaning}"
         )
+
         does_match = self.advisor.ask(
             s=prompts.DETERMINE_MATCH.format(
                 summary=summary, codes=codes, code_meaning=code_meaning
             ),
             context=self.pages,
         )
+        result["Codes Match Suggested Treatment"] = does_match
         logger.info(
             f"Confirming that those codes match what the doctor has said in the text: {does_match}"
         )
-        return does_match
+        return result
 
     def check_for_previous_conservative_treatment(self) -> Tuple[str, bool]:
         summary = self.advisor.ask(

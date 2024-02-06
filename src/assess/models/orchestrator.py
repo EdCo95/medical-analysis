@@ -10,6 +10,7 @@ class Orchestrator:
 
     def run_pipeline(self, criteria: AssessmentCriteria, record: MedicalRecord) -> str:
         """Runs the full assessment pipeline and returns the evidence as a Markdown string."""
-        codes = record.extract_and_validate_cpt_codes()
-        print(codes)
-        input("Wait")
+        # codes = record.extract_and_validate_cpt_codes()
+        # print(codes)
+        # input("Wait")
+        raise NotImplementedError
