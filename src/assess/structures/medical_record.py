@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import datetime
 from typing import Dict, List, Tuple
 
@@ -27,11 +28,11 @@ class MedicalRecord:
         result = self.advisor.ask(prompts.ASK_FOR_CPT_CODES, context=self.pages)
         return result
 
-    def extract_and_validate_cpt_codes(self) -> Dict[str, str]:
+    def extract_and_validate_cpt_codes(self) -> OrderedDict[str, str]:
         """
         Reads the CPT codes then checks that the procedure they correspond to aligns with the note description.
         """
-        result = {}
+        result = OrderedDict()
         summary = self.advisor.ask(prompts.SUMMARISE_DOCTORS_ORDERS, context=self.pages)
         result["Summary of Recommended Treatment"] = summary
         logger.info(f"Summary of Doctor's Recommended Treatment: {summary}")
