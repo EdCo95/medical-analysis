@@ -17,15 +17,21 @@ class AssessorTestCase(unittest.TestCase):
 
         medical_record = data_handler.load_medical_record_1()
         medical_record = MedicalRecord(pages=medical_record)
-        result = assessor.assess_criteria(criteria=criteria, record=medical_record)
-        self.assertTrue(result.strip().startswith("[YES]"))
+        _, meets_criteria = assessor.assess_criteria(
+            criteria=criteria, record=medical_record
+        )
+        self.assertTrue(meets_criteria)
 
         medical_record = data_handler.load_medical_record_2()
         medical_record = MedicalRecord(pages=medical_record)
-        result = assessor.assess_criteria(criteria=criteria, record=medical_record)
-        self.assertTrue(result.strip().startswith("[YES]"))
+        _, meets_criteria = assessor.assess_criteria(
+            criteria=criteria, record=medical_record
+        )
+        self.assertTrue(meets_criteria)
 
         medical_record = data_handler.load_medical_record_3()
         medical_record = MedicalRecord(pages=medical_record)
-        result = assessor.assess_criteria(criteria=criteria, record=medical_record)
-        self.assertTrue(result.strip().startswith("[NO]"))
+        _, meets_criteria = assessor.assess_criteria(
+            criteria=criteria, record=medical_record
+        )
+        self.assertFalse(meets_criteria)

@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from typing import Tuple
+
 import tomlkit
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.output_parsers import StrOutputParser
@@ -16,7 +19,7 @@ class Assessor:
 
     def assess_criteria(
         self, criteria: AssessmentCriteria, record: MedicalRecord
-    ) -> str:
+    ) -> Tuple[OrderedDict[str, str], bool]:
         """Performs the assessment"""
         raise NotImplementedError
 
@@ -30,7 +33,7 @@ class GPT4Assessor(Assessor):
 
     def assess_criteria(
         self, criteria: AssessmentCriteria, record: MedicalRecord
-    ) -> str:
+    ) -> Tuple[OrderedDict[str, str], bool]:
         return self.engine.assess_criteria(criteria, record)
 
 
@@ -55,28 +58,37 @@ class OpenAiAssessmentEngine:
 
     def assess_criteria(
         self, criteria: AssessmentCriteria, record: MedicalRecord
-    ) -> str:
+    ) -> Tuple[OrderedDict[str, str], bool]:
+        result = OrderedDict()
+
         patient_profile = record.extract_patient_profile()
         logger.info(f"The patient's profile: {tomlkit.dumps(patient_profile)}")
-        assessements_of_each_criteria = []
+        assessements_of_each_criteria = OrderedDict()
         for criteria_name, description in criteria.get_sections():
             logger.info(f"Assessing criteria '{criteria_name}'...")
             criteria_string = f"{criteria_name}:\n{description}"
-            result = self._individual_criteria_chain.invoke(
+            response = self._individual_criteria_chain.invoke(
                 {
                     "profile": tomlkit.dumps(patient_profile),
                     "criteria": criteria_string,
                     "context": record.pages,
                 }
             )
-            logger.info(f"Assessment response: {result}")
-            result = f'Assessment for criteria "{criteria_name}":\n{result}\n\n'
-            assessements_of_each_criteria.append(result)
+            logger.info(f"Assessment response: {response}")
+            key = (
+                f"Assessment for Criteria \"{criteria_name.replace('-', ' ').title()}\""
+            )
+            assessements_of_each_criteria[key] = response
 
         logger.info("Performing final assessment...")
-        assessments = "\n".join(assessements_of_each_criteria)
-        result = self._final_assessment_chain.invoke(
+        assessments = "\n".join(assessements_of_each_criteria.values())
+        final_assessment = self._final_assessment_chain.invoke(
             {"instructions": criteria.get_description(), "assessments": assessments}
         )
-        logger.info(f"Final assessment: {result}")
-        return result
+        logger.info(f"Final assessment: {final_assessment}")
+
+        result["Final Assessment"] = assessments
+        for key, val in assessements_of_each_criteria.items():
+            result[key] = val
+
+        return result, final_assessment.startswith("[YES]")

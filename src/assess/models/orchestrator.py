@@ -53,7 +53,8 @@ class Orchestrator:
         prev_treatments: OrderedDict[str, str],
     ) -> str:
         logger.info("Previous treatment did not help. Assessing against criteria.")
-        # result = self.assessor.assess_criteria(criteria, record)
+        analysis_dict, approved = self.assessor.assess_criteria(criteria, record)
+        # TODO: start here when back, add the analysis dictionary to the result
 
     def run_pipeline(self, criteria: AssessmentCriteria, record: MedicalRecord) -> str:
         """Runs the full assessment pipeline and returns the evidence as a Markdown string."""
