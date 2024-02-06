@@ -86,17 +86,37 @@ JSON_EXTRACTION_PROMPT = """Read the context then extract the JSON data as descr
 """
 
 
-ASSESS_AGAINST_CRITERIA = (
-    "Read the document then make an assessment against the criteria to decide whether the context "
-    "meets the criteria. YOU MUST SHOW YOUR REASONING IN DETAIL. When justifying your decision, "
-    "QUOTE EVIDENCE VERBATIM from the criteria and the document.\n\n"
-    "<age>"
-    "{age}"
-    "</age>"
-    "<document>\n"
-    "{context}\n"
-    "</document>\n\n"
+ASSESS_AGAINST_INDIVIDUAL_CRITERIA = (
+    "Below is a patient profile, an assessment criteria, and the raw medical record. "
+    "It is your task to assess whether the patient meets the assessment criteria "
+    "for the recommended procedure. "
+    "IT IS ESSENTIAL THAT YOU QUOTE YOUR EVIDENCE FOR EACH DEDUCTION VERBATIM "
+    "FROM THE PATIENT PROFILE OR MEDICAL RECORD. "
+    "UNDER NO CIRCUMSTANCES SHOULD YOU MAKE AN INFERENCE, "
+    "ALL OF YOUR CONCLUSIONS MUST BE DIRECTLY SUPPORTED BY EVIDENCE. "
+    "Show your reasoning in detail. "
+    'START YOUR RESPONSE WITH EITHER "[YES]" OR "[NO]" INDICATING IF THEY MEET THAT CRITERIA.\n\n'
+    "<patient-profile>\n"
+    "{profile}\n"
+    "</patient-profile>\n\n"
     "<criteria>\n"
     "{criteria}\n"
-    "</criteria>"
+    "</criteria>\n\n"
+    "<medical-record>\n"
+    "{context}\n"
+    "</medical-record>\n\n"
+)
+
+FINAL_ASSESSMENT = (
+    "Your task is to determine whether a patient meets the criteria for the stated medical procedure. "
+    "You have access to a list of assessments already given for each sub-point of the criteria. "
+    "Your job is to provide the final, overall assessment of whether the patient meets the criteria. "
+    "YOU MUST QUOTE YOUR EVIDENCE FOR YOUR DECISION VERBATIM. "
+    'Begin your answer with "[YES]" if they do meet the criteria, and "[NO]" otherwise.\n\n'
+    "<instructions>\n"
+    "{instructions}\n"
+    "</instructions>\n\n"
+    "<assessments>\n\n"
+    "{assessments}\n"
+    "</assessments>\n\n"
 )

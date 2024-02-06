@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Dict, List, Optional
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -10,6 +9,7 @@ from langchain_core.pydantic_v1 import BaseModel
 from langchain_openai import ChatOpenAI
 from pydantic.v1.error_wrappers import ValidationError
 
+from assess.models.llms import LlmType
 from assess.structures import prompts
 
 
@@ -17,11 +17,6 @@ class MissingApiKeyExcepetion(Exception):
     """To be raised if the API key environment variable hasn't been set"""
 
     pass
-
-
-class AdvisorType(Enum):
-    GPT_4 = "gpt-4"
-    GPT_3_5 = "gpt-3.5-turbo"
 
 
 class SingleDocumentInterpreter:
@@ -58,7 +53,7 @@ class GPT4SingleDocumentInterpreter(SingleDocumentInterpreter):
 
     def __init__(self):
         super().__init__()
-        self.model = ChatOpenAI(model=AdvisorType.GPT_4.value)
+        self.model = ChatOpenAI(model=LlmType.GPT_4.value)
         self.engine = OpenAiEngine(self.model)
 
     def ask(
@@ -83,7 +78,7 @@ class GPT3_5SingleDocumentInterpreter(SingleDocumentInterpreter):
 
     def __init__(self):
         super().__init__()
-        self.model = ChatOpenAI(model=AdvisorType.GPT_3_5.value)
+        self.model = ChatOpenAI(model=LlmType.GPT_3_5.value)
         self.engine = OpenAiEngine(self.model)
 
     def ask(
@@ -127,7 +122,7 @@ class OpenAiEngine:
         )
 
         self._assessment_prompt = ChatPromptTemplate.from_template(
-            template=prompts.ASSESS_AGAINST_CRITERIA
+            template=prompts.ASSESS_AGAINST_INDIVIDUAL_CRITERIA
         )
         self._assessment_chain = create_stuff_documents_chain(
             self.model, self._assessment_prompt
@@ -172,13 +167,13 @@ class OpenAiEngine:
 class DocReaderFactory:
     """Given a model identifier, instantiates the correct SingleDocumentInterpreter object."""
 
-    def __init__(self, model_id: AdvisorType):
+    def __init__(self, model_id: LlmType):
         self.advisor_type = model_id
 
     def _select_advisor(self) -> SingleDocumentInterpreter:
-        if self.advisor_type == AdvisorType.GPT_4:
+        if self.advisor_type == LlmType.GPT_4:
             return GPT4SingleDocumentInterpreter()
-        elif self.advisor_type == AdvisorType.GPT_3_5:
+        elif self.advisor_type == LlmType.GPT_3_5:
             return GPT3_5SingleDocumentInterpreter()
         else:
             raise KeyError(

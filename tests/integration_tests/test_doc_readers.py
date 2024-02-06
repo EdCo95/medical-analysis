@@ -4,11 +4,11 @@ import unittest
 from langchain_core.pydantic_v1 import BaseModel, Field
 
 from assess.models.doc_readers import (
-    AdvisorType,
     DocReaderFactory,
     MissingApiKeyExcepetion,
     SingleDocumentInterpreter,
 )
+from assess.models.llms import LlmType
 from tests.tools import data_handler
 
 
@@ -20,7 +20,7 @@ class ExampleJson(BaseModel):
 class AdvisorTestCase(unittest.TestCase):
 
     def _get_advisor(
-        self, flavour: AdvisorType = AdvisorType.GPT_4
+        self, flavour: LlmType = LlmType.GPT_4
     ) -> SingleDocumentInterpreter:
         return DocReaderFactory(flavour).get_advisor()
 
@@ -29,12 +29,12 @@ class AdvisorTestCase(unittest.TestCase):
         result = gpt4_advisor.ask("Hello!")
         self.assertIsInstance(result, str)
 
-        gpt3_5_advisor = self._get_advisor(flavour=AdvisorType.GPT_3_5)
+        gpt3_5_advisor = self._get_advisor(flavour=LlmType.GPT_3_5)
         result = gpt3_5_advisor.ask("Hello!")
         self.assertIsInstance(result, str)
 
     def test_that_advisors_can_answer_questions_based_on_context(self):
-        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        advisor = self._get_advisor(LlmType.GPT_3_5)
         context = data_handler.load_medical_record_1()
         expected = "yes"
         result = advisor.ask(
@@ -45,7 +45,7 @@ class AdvisorTestCase(unittest.TestCase):
         self.assertTrue(expected in result.lower())
 
     def test_that_advisors_can_answer_questions_based_on_search_results(self):
-        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        advisor = self._get_advisor(LlmType.GPT_3_5)
         expected = "yes"
         result = advisor.ask(
             "Is Cheddar a type of cheese?",
@@ -56,7 +56,7 @@ class AdvisorTestCase(unittest.TestCase):
     def test_that_advisors_can_answer_questions_based_on_context_and_search_results(
         self,
     ):
-        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        advisor = self._get_advisor(LlmType.GPT_3_5)
         context = data_handler.load_medical_record_1()
         expected = "yes"
         result = advisor.ask(
@@ -73,7 +73,7 @@ class AdvisorTestCase(unittest.TestCase):
             del os.environ["OPENAI_API_KEY"]
 
         try:
-            self._get_advisor(AdvisorType.GPT_3_5)
+            self._get_advisor(LlmType.GPT_3_5)
         except MissingApiKeyExcepetion:
             print("Test passed.")
         except Exception as e:
@@ -90,7 +90,7 @@ class AdvisorTestCase(unittest.TestCase):
         print(result)
 
     def test_that_json_structures_can_be_extracted(self):
-        advisor = self._get_advisor(AdvisorType.GPT_3_5)
+        advisor = self._get_advisor(LlmType.GPT_3_5)
         context = data_handler.load_medical_record_1()
         result = advisor.extract_json(
             "Extract the patient's name and date of birth in JSON format.",
