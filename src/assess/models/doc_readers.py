@@ -24,7 +24,7 @@ class AdvisorType(Enum):
     GPT_3_5 = "gpt-3.5-turbo"
 
 
-class Advisor:
+class SingleDocumentInterpreter:
     """Interface class for advisors."""
 
     def __init__(self):
@@ -53,8 +53,8 @@ class Advisor:
         return self.search.run(query)
 
 
-class GPT4Advisor(Advisor):
-    """An Advisor backed by GPT-4"""
+class GPT4SingleDocumentInterpreter(SingleDocumentInterpreter):
+    """An SingleDocumentInterpreter backed by GPT-4"""
 
     def __init__(self):
         super().__init__()
@@ -78,8 +78,8 @@ class GPT4Advisor(Advisor):
         return self.engine.extract_json(prompt, json_structure, context)
 
 
-class GPT3_5Advisor(Advisor):
-    """An Advisor backed by GPT-3.5"""
+class GPT3_5SingleDocumentInterpreter(SingleDocumentInterpreter):
+    """An SingleDocumentInterpreter backed by GPT-3.5"""
 
     def __init__(self):
         super().__init__()
@@ -169,23 +169,23 @@ class OpenAiEngine:
         return result
 
 
-class AdvisorFactory:
-    """Given a model identifier, instantiates the correct Advisor object."""
+class DocReaderFactory:
+    """Given a model identifier, instantiates the correct SingleDocumentInterpreter object."""
 
     def __init__(self, model_id: AdvisorType):
         self.advisor_type = model_id
 
-    def _select_advisor(self) -> Advisor:
+    def _select_advisor(self) -> SingleDocumentInterpreter:
         if self.advisor_type == AdvisorType.GPT_4:
-            return GPT4Advisor()
+            return GPT4SingleDocumentInterpreter()
         elif self.advisor_type == AdvisorType.GPT_3_5:
-            return GPT3_5Advisor()
+            return GPT3_5SingleDocumentInterpreter()
         else:
             raise KeyError(
                 f"Need to specify a valid advisor type (current: {self.advisor_type})"
             )
 
-    def get_advisor(self) -> Advisor:
+    def get_advisor(self) -> SingleDocumentInterpreter:
         try:
             return self._select_advisor()
         except ValidationError:

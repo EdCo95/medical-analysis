@@ -3,11 +3,11 @@ import unittest
 
 from langchain_core.pydantic_v1 import BaseModel, Field
 
-from assess.models.advisor import (
-    Advisor,
-    AdvisorFactory,
+from assess.models.doc_readers import (
     AdvisorType,
+    DocReaderFactory,
     MissingApiKeyExcepetion,
+    SingleDocumentInterpreter,
 )
 from tests.tools import data_handler
 
@@ -19,8 +19,10 @@ class ExampleJson(BaseModel):
 
 class AdvisorTestCase(unittest.TestCase):
 
-    def _get_advisor(self, flavour: AdvisorType = AdvisorType.GPT_4) -> Advisor:
-        return AdvisorFactory(flavour).get_advisor()
+    def _get_advisor(
+        self, flavour: AdvisorType = AdvisorType.GPT_4
+    ) -> SingleDocumentInterpreter:
+        return DocReaderFactory(flavour).get_advisor()
 
     def test_that_advisors_can_be_asked_arbitrary_prompts_and_return_strings(self):
         gpt4_advisor = self._get_advisor()
@@ -83,7 +85,7 @@ class AdvisorTestCase(unittest.TestCase):
                 os.environ["OPENAI_API_KEY"] = existing_key
 
     def test_that_the_base_advisor_class_provides_a_web_search_function(self):
-        advisor = Advisor()
+        advisor = SingleDocumentInterpreter()
         result = advisor.web_search("CPT Code 43578")
         print(result)
 

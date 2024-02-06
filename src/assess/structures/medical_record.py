@@ -5,7 +5,7 @@ from langchain_core.documents import Document
 from langchain_core.pydantic_v1 import BaseModel, Field
 from loguru import logger
 
-from assess.models.advisor import GPT3_5Advisor
+from assess.models.doc_readers import GPT3_5SingleDocumentInterpreter
 from assess.structures import prompts
 from assess.structures.prompts import PromptConstant
 from assess.utils import serialize
@@ -20,7 +20,7 @@ class MedicalRecord:
 
     def __init__(self, pages: List[Document]):
         self.pages = pages
-        self.advisor = GPT3_5Advisor()
+        self.advisor = GPT3_5SingleDocumentInterpreter()
 
     def extract_requested_cpt_codes(self) -> str:
         """Reads the document to extract the CPT codes of the recommended procedure."""
