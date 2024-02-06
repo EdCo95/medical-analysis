@@ -65,20 +65,26 @@ class MedicalRecord:
         )
         return result
 
-    def check_for_previous_conservative_treatment(self) -> Tuple[str, bool]:
+    def check_for_previous_conservative_treatment(
+        self,
+    ) -> Tuple[OrderedDict[str, str], bool]:
+        result = OrderedDict()
         summary = self.advisor.ask(
             prompts.SUMMARY_OF_TREATMENT_SO_FAR, context=self.pages
         )
+        result["Summary of Treatment Received To Date"] = summary
         logger.info(f"Summarised attempts to help the patient so far: {summary}")
+
         confirmation = self.advisor.ask(
             prompts.YES_NO_DID_ANYTHING_HELP, context=[Document(page_content=summary)]
         )
+        result["Has Any Previous Treatment Helped the Patient?"] = confirmation
         logger.info(f"Interpretation: did anything help the patient? {confirmation}")
 
         if confirmation.strip() == PromptConstant.YES.value:
-            return summary, True
+            return result, True
         elif confirmation.strip() == PromptConstant.NO.value:
-            return summary, False
+            return result, False
         else:
             raise ValueError(
                 f'Confirmation did not respond with yes or no (responded with "{confirmation}")'
