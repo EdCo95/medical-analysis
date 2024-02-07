@@ -2,6 +2,7 @@ import unittest
 
 from assess.structures.criteria import AssessmentCriteria
 from assess.utils import serialize
+from tests.tools import data_handler
 
 
 class CriteriaTestCase(unittest.TestCase):
@@ -20,12 +21,6 @@ class CriteriaTestCase(unittest.TestCase):
         self.assertListEqual(expected_descriptions, result)
 
     def test_that_it_can_load_a_main_description(self):
-        expected = (
-            "This document provides the assessment criteria for whether a "
-            "patient is eligible for a colonoscopy procedure.\n\nBelow are "
-            "several sections describing different criteria. The title of "
-            "each section is delineated by square brackets.\n\nA patient is "
-            "eligible for a colonoscopy if they satisfy ANY SINGLE ONE OF THOSE SECTIONS."
-        )
+        expected = data_handler.load_example_treatment_criteria()["description"]
         result = self._get_criteria().get_description()
         self.assertEqual(expected.strip(), result.strip())
