@@ -1,9 +1,8 @@
 description = """
 This document provides the assessment criteria for whether a patient is eligible for a colonoscopy procedure.
 
-Below are several sections describing different criteria. The title of each section is delineated by square brackets.
-
-A patient is eligible for a colonoscopy if they satisfy ANY SINGLE ONE OF THOSE SECTIONS.
+Below are several sections describing different criteria. A patient is eligible for a colonoscopy
+if they satisfy ANY SINGLE ONE OF THOSE SECTIONS.
 """
 
 [risk-profile]

@@ -1,4 +1,4 @@
-.PHONY: install-deploy install-dev lint format test clean
+.PHONY: install-deploy install-dev lint format test clean analyse docker-build
 
 VENV_DIR := .venv
 
@@ -25,6 +25,12 @@ clean:
 	rm -rf $(VENV_DIR)
 	find . -type f -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -delete
+
+docker-build:
+	docker build -t medical-assessment .
+
+analyse:
+	docker run -e OPENAI_API_KEY=$$OPENAI_API_KEY -v $(PWD):/app medical-assessment --record-path /app/$(RECORD_PATH) --write-loc /app/$(WRITE_LOC)
 
 venv: $(VENV_DIR)/bin/activate
 

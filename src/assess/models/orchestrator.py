@@ -27,6 +27,14 @@ class Orchestrator:
             result += llm_response + "\n\n"
         return result
 
+    def _add_previous_treatments(
+        self, result: str, prev_treatments: OrderedDict[str, str]
+    ) -> str:
+        result += "## Previous Treatments\n"
+        for key, val in prev_treatments.items():
+            result += f"### {key}\n{val}\n\n"
+        return result
+
     def _handle_case_prev_treatment_helped(
         self, record: MedicalRecord, result: str, prev_treatments: OrderedDict[str, str]
     ) -> str:
@@ -38,6 +46,8 @@ class Orchestrator:
             "**Reason:** Previous conservative treatment has shown improvement and "
             "should be continued (see below)\n\n"
         )
+
+        result = self._add_previous_treatments(result, prev_treatments)
 
         result += "## Justification for Continuing Conservative Treatment\n"
         result += record.present_evidence_treatment_helped() + "\n\n"
@@ -55,6 +65,13 @@ class Orchestrator:
         result += "**Reason:** The patient does not meet the criteria for the recommended treatment (see below)\n\n"
         return result
 
+    def _add_criteria(self, result: str, criteria: AssessmentCriteria) -> str:
+        result += "## Assessment Criteria\n"
+        result += criteria.get_description() + "\n"
+        for key, val in criteria.get_sections():
+            result += f"### {key.replace('-', ' ').title()}\n{val}\n\n"
+        return result
+
     def _handle_case_prev_treatment_didnt_help(
         self,
         criteria: AssessmentCriteria,
@@ -70,7 +87,7 @@ class Orchestrator:
         else:
             result = self._add_denied_stamp(result)
 
-        result += self._add_cpt_code_analysis(record)
+        result = self._add_previous_treatments(result, prev_treatments)
 
         result += f"## Final Assessment\n{analysis_dict['Final Assessment']}\n\n"
 
@@ -78,6 +95,10 @@ class Orchestrator:
             if key == "Final Assessment":
                 continue
             result += f"## {key}\n{val}\n\n"
+
+        result += self._add_cpt_code_analysis(record)
+
+        result = self._add_criteria(result, criteria)
 
         return result
 

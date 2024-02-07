@@ -7,3 +7,4 @@ Would add tests that endpoints are live
 Would add verification that the quoted evidence did come from the criteria and medical record
 Retrying done with decorators
 Need to inform the LLM of the current date
+Make the PDF formatting nicer

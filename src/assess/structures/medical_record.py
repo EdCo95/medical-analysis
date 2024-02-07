@@ -110,6 +110,9 @@ class MedicalRecord:
         extracted["age"] = str(age)
         return extracted
 
+    def get_name(self) -> str:
+        return self.extract_patient_profile()["name"]
+
     @classmethod
     def from_pdf(cls, pdf_path: str) -> "MedicalRecord":
         data = serialize.load_pdf_file(pdf_path)
