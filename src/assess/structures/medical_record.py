@@ -9,7 +9,7 @@ from loguru import logger
 from assess.models.doc_readers import GPT3_5SingleDocumentInterpreter
 from assess.structures import prompts
 from assess.structures.prompts import PromptConstant
-from assess.utils import serialize
+from assess.utils import retry_tools, serialize
 
 
 class PatientProfile(BaseModel):
@@ -97,6 +97,7 @@ class MedicalRecord:
         )
         return evidence
 
+    @retry_tools.retry_on_failure(tolerance=3)
     def extract_patient_profile(self) -> Dict:
         extracted = self.advisor.extract_json(
             "Extract the patient's name and date of birth in JSON format.",

@@ -33,7 +33,7 @@ class Orchestrator:
         logger.info(
             "Previous treatment helped. Stopping pipeline execution and presenting evidence."
         )
-        result += "**Assessment:** THIS TREATMENT IS NOT RECOMMENDED.\n"
+        result += "**Assessment:** DENIED\n\n"
         result += (
             "**Reason:** Previous conservative treatment has shown improvement and "
             "should be continued (see below)\n\n"
@@ -45,6 +45,16 @@ class Orchestrator:
         result += self._add_cpt_code_analysis(record)
         return result
 
+    def _add_approved_stamp(self, result: str) -> str:
+        result += "**Assessment:** APPROVED\n\n"
+        result += "**Reason:** The patient meets the criteria for the recommended treatment (see below)\n\n"
+        return result
+
+    def _add_denied_stamp(self, result: str) -> str:
+        result += "**Assessment:** DENIED\n\n"
+        result += "**Reason:** The patient does not meet the criteria for the recommended treatment (see below)\n\n"
+        return result
+
     def _handle_case_prev_treatment_didnt_help(
         self,
         criteria: AssessmentCriteria,
@@ -54,7 +64,22 @@ class Orchestrator:
     ) -> str:
         logger.info("Previous treatment did not help. Assessing against criteria.")
         analysis_dict, approved = self.assessor.assess_criteria(criteria, record)
-        # TODO: start here when back, add the analysis dictionary to the result
+
+        if approved:
+            result = self._add_approved_stamp(result)
+        else:
+            result = self._add_denied_stamp(result)
+
+        result += self._add_cpt_code_analysis(record)
+
+        result += f"## Final Assessment\n{analysis_dict['Final Assessment']}\n\n"
+
+        for key, val in analysis_dict.items():
+            if key == "Final Assessment":
+                continue
+            result += f"## {key}\n{val}\n\n"
+
+        return result
 
     def run_pipeline(self, criteria: AssessmentCriteria, record: MedicalRecord) -> str:
         """Runs the full assessment pipeline and returns the evidence as a Markdown string."""
@@ -74,4 +99,9 @@ class Orchestrator:
                 record, result, prev_treatments
             )
         else:
-            return self._handle_case_prev_treatment_didnt_help(result, prev_treatments)
+            return self._handle_case_prev_treatment_didnt_help(
+                criteria=criteria,
+                record=record,
+                result=result,
+                prev_treatments=prev_treatments,
+            )

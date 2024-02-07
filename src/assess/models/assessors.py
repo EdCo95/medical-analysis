@@ -87,7 +87,7 @@ class OpenAiAssessmentEngine:
         )
         logger.info(f"Final assessment: {final_assessment}")
 
-        result["Final Assessment"] = assessments
+        result["Final Assessment"] = final_assessment
         for key, val in assessements_of_each_criteria.items():
             result[key] = val
 
